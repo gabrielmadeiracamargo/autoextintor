@@ -11,6 +11,7 @@ cap = cv2.VideoCapture(0)
 
 fire_detected_frames = 0
 fire_absent_frames = 0
+fire_center_x = fire_center_y = 0
 last_fire_position = None
 fire_confirmed = False
 fire_lost = False
@@ -54,10 +55,14 @@ while cap.isOpened():
             fire_absent_frames = 0  # Reseta a contagem de ausência do fogo
 
         if fire_detected_frames >= FRAME_THRESHOLD and not fire_confirmed:
-            print('🔥 Fogo confirmado após 3 segundos!')
             ser1.write(str.encode('p'))
             fire_confirmed = True
 
+        if fire_confirmed:
+            fire_center_x = x + w // 2
+            fire_center_y = y + h // 2
+            print(f'🔥 Fogo confirmado! Centro do fogo: ({fire_center_x}, {fire_center_y})')
+            
         fire_lost = False  # Se o fogo está visível, não consideramos que ele foi perdido
 
     else:
