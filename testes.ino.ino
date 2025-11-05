@@ -1,26 +1,39 @@
-// Controle de LED via sinal do Python (OpenCV)
-// Porta digital 2 -> LED
-
-char data;  // variável para armazenar o dado recebido
+#include <Servo.h>
+String inputString;
+Servo left_right;
+Servo up_down;
 
 void setup() {
-  pinMode(2, OUTPUT);    // Define o pino 2 como saída
-  digitalWrite(2, LOW);  // Garante que o LED inicie apagado
-  Serial.begin(9600);    // Taxa de comunicação deve ser igual à do Python (9600)
+  left_right.attach(10);
+  up_down.attach(9);
+  Serial.begin(9600);
 }
 
 void loop() {
-  // Verifica se há dados disponíveis na serial
-  if (Serial.available() > 0) {
-    data = Serial.read();  // Lê o caractere recebido
+  while (Serial.available()) {
+    inputString = Serial.readStringUntil('\r');
 
-    if (data == 'p') {
-      digitalWrite(2, HIGH);  // Acende o LED
-      Serial.println("🔥 Fogo detectado! LED ON");
+    if (inputString == "p") {
+      Serial.println("🔥 Ativando modo de combate ao fogo!");
+      continue;
+    } else if (inputString == "s") {
+      Serial.println("🚒 Fogo apagado - parando servos!");
+      continue;
     }
-    else if (data == 's') {
-      digitalWrite(2, LOW);   // Apaga o LED
-      Serial.println("✅ Sem fogo. LED OFF");
+
+    int commaIndex = inputString.indexOf(',');
+    if (commaIndex > 0) {
+      int x_axis = inputString.substring(0, commaIndex).toInt();
+      int y_axis = inputString.substring(commaIndex + 1).toInt();
+
+      int y = map(y_axis, 0, 1080, 180, 0);
+      int x = map(x_axis, 0, 1920, 0, 180);
+
+      left_right.write(x);
+      up_down.write(y);
+
+      Serial.print("X: "); Serial.println(x);
+      Serial.print("Y: "); Serial.println(y);
     }
   }
 }
