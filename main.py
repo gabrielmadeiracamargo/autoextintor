@@ -6,7 +6,7 @@ import sys
 import os
 
 # --- CONFIGURAÇÕES ---
-PORTA = '/dev/ttyUSB0'  # ajuste conforme sua porta serial
+PORTA = 'COM9'  # ajuste conforme sua porta serial
 BAUD = 9600
 CASCADE_PATH = 'cascade.xml'
 
@@ -65,7 +65,7 @@ def is_same_position(pos1, pos2, tolerance):
 
 def send_coordinates(x, y):
     if ser:
-        msg = f"{x},{y}\r"
+        msg = f"{x},{y}\n"
         ser.write(msg.encode())
         print(f"📡 Enviado ao Arduino: {msg.strip()}")
     else:
@@ -97,8 +97,8 @@ try:
 
             if fire_detected_frames >= FRAME_THRESHOLD and not fire_confirmed:
                 if ser:
-                    ser.write(b"p")
-                print("🔥 Fogo confirmado!")
+                    ser.write(b"p\n")
+                    print("🔥 Fogo confirmado!")
                 fire_confirmed = True
 
             if fire_confirmed:
@@ -113,9 +113,9 @@ try:
                 fire_lost = True
 
             if fire_lost and fire_confirmed:
-                print("🚒 Fogo apagado!")
                 if ser:
-                    ser.write(b"s")
+                    ser.write(b"s\n")
+                    print("🚒 Fogo apagado!")
                 fire_confirmed = False
 
         # Cria a janela só uma vez
